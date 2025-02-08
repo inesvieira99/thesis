@@ -111,5 +111,43 @@ ggplot(combined_data, aes(x = GCContent, y = Count, color = Sample, size = Sampl
 ggsave("greyplot.pdf")
 
 
+---- ir buscar os valores 
+
+import xlsxwriter
+
+input_file = "fastqc_data.txt"
+output_file = "fastqc_data.xlsx"
+
+workbook = xlsxwriter.Workbook(output_file)
+worksheet = workbook.add_worksheet()
+
+found_section = False
+header_row = []
+data_rows = []
+
+with open(input_file, "r") as file:
+    for line in file:
+        if line.startswith(">>END_MODULE"):
+            if found_section:
+                break
+        elif found_section:
+            if line.startswith("#GC Content"):
+                header_row = line.strip().split("\t")
+            else:
+                data = line.strip().split("\t")
+                data_rows.append(data)
+        elif line.startswith(">>Per sequence GC content"):
+            found_section = True
+
+num_format = workbook.add_format({'num_format': '0'})
+
+for col, header in enumerate(header_row):
+    worksheet.write(0, col, header)
+
+for row, data in enumerate(data_rows):
+    for col, value in enumerate(data):
+        worksheet.write_number(row + 1, col, float(value), num_format)
+
+workbook.close()
 
 
