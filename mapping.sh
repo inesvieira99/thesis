@@ -1,5 +1,4 @@
 #!/bin/bash
-
 SAMPLE=$1
 NT=$2
 
